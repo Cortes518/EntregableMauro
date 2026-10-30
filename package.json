@@ -1,0 +1,23 @@
+{
+  "name": "mundos-ia",
+  "version": "1.0.0",
+  "description": "Programa de consola que convierte una situación, un mundo y 5 colores en una descripción y una imagen generadas con IA.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "ia",
+    "consola",
+    "imagenes",
+    "fetch",
+    "nodejs",
+    "sena"
+  ],
+  "author": "Juan Jose Cortes",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "object-hash": "^3.0.0"
+  }
+}
