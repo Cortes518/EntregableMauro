@@ -3,9 +3,11 @@ const fs = require('fs');
 const path = require('path');
 const { crearMundo, guardarMundo, leerMundo } = require('./mundo');
 const { describirMundo } = require('./texto');
+const { generarImagen } = require('./imagen');
 
 const RAIZ = path.join(__dirname, '..');
 const CARPETA_DESCRIPCIONES = path.join(RAIZ, 'descripciones');
+const CARPETA_IMAGENES = path.join(RAIZ, 'imagenes');
 
 // Muestra la ruta relativa al proyecto, con "/" como en el enunciado
 function rutaCorta(ruta) {
@@ -29,6 +31,14 @@ async function main() {
     fs.mkdirSync(CARPETA_DESCRIPCIONES, { recursive: true });
     fs.writeFileSync(rutaTxt, descripcion, 'utf-8');
     console.log(`Paso 2: descripción guardada en ${rutaCorta(rutaTxt)}`);
+
+    // Paso 3: la descripción que se envía se lee desde el .txt guardado
+    const rutaJpg = path.join(CARPETA_IMAGENES, `mundo_${mundo.id}.jpg`);
+    const bytes = await generarImagen(fs.readFileSync(rutaTxt, 'utf-8'));
+    fs.mkdirSync(CARPETA_IMAGENES, { recursive: true });
+    fs.writeFileSync(rutaJpg, bytes); // los bytes se guardan tal cual, SIN 'utf-8'
+    console.log(`Paso 3: imagen guardada en ${rutaCorta(rutaJpg)}`);
+    console.log('Listo. Revisa la carpeta imagenes/');
   } catch (error) {
     console.error(`Error: ${error.message}`);
     process.exitCode = 1;
