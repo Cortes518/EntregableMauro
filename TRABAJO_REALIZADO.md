@@ -69,7 +69,7 @@ Todas las pruebas se ejecutaron de verdad en este equipo (Windows 10, Node v24.1
 
 ## 3. Commits
 
-Un commit por parte (el enunciado pide al menos 6):
+Un commit por parte, más los de cierre (el enunciado pide al menos 6). Se pueden ver con `git log --oneline`:
 
 1. Parte 1: proyecto base
 2. Parte 2: argumentos y JSON
@@ -78,6 +78,9 @@ Un commit por parte (el enunciado pide al menos 6):
 5. Parte 5: reutilización y errores
 6. Parte 6: README y dry-run
 7. PROMPT.md, evidencias y este archivo
+8. Cambio a Pollinations, mensajes de error propios y documentación final
+9. Evidencias y explicación del riesgo de publicar sin `.gitignore` en el README
+10. Capturas del segundo mundo y de `git ls-files`
 
 ## 4. Estado de la entrega
 
@@ -86,13 +89,13 @@ Hecho:
 - [x] Clave de Groq en `.env` (la de NVIDIA ya no se usa).
 - [x] Prueba real con varios mundos: las imágenes se generaron y se revisaron con el visor.
 - [x] `PROMPT.md` y las respuestas de reflexión del README completados.
+- [x] Carpeta `evidencias/` con las capturas de la sección 6 del enunciado: dos mundos ejecutados, segunda ejecución, tres errores de la tabla (401, 402 y `TypeError`) más el de `.env` inexistente, `npm publish --dry-run` con y sin `.gitignore`, `git ls-files` y las imágenes.
+- [x] Prueba de clonado limpio: clonar el repositorio, copiar `.env.example` a `.env`, `npm install` y `npm start` funcionan (con la clave de ejemplo llega a Groq y responde "La API key no es valida").
 
 Falta (lo hace el aprendiz):
 
-- [ ] Tomar las capturas de `evidencias/` (lista completa en la sección 6 del enunciado) y copiar las imágenes de `imagenes/` a `evidencias/`, porque `imagenes/` no se sube a Git.
-- [ ] Hacer un commit con las evidencias y tomar la captura de `git ls-files` después de ese commit.
 - [ ] Subir el repositorio a GitHub y reemplazar `<url-del-repositorio>` en el README.
-- [ ] Prueba final: clonar el repositorio desde GitHub en otra carpeta, copiar `.env.example` a `.env`, ejecutar `npm install` y `npm start -- ...`.
+- [ ] Repetir la prueba de clonado, ahora desde GitHub, con la clave real de Groq.
 - [ ] Revocar las claves de Groq y NVIDIA después de la sustentación (la de Groq se necesita para ejecutar en vivo).
 
 ### Para la sustentación: dónde tocar para los cambios típicos
