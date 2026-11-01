@@ -94,7 +94,7 @@ Hecho:
 
 Falta (lo hace el aprendiz):
 
-- [ ] Subir el repositorio a GitHub y reemplazar `<url-del-repositorio>` en el README.
+- [x] Repositorio subido a GitHub (https://github.com/Cortes518/EntregableMauro) y URL puesta en el README.
 - [ ] Repetir la prueba de clonado, ahora desde GitHub, con la clave real de Groq.
 - [ ] Revocar las claves de Groq y NVIDIA después de la sustentación (la de Groq se necesita para ejecutar en vivo).
 

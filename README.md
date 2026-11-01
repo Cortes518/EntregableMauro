@@ -16,8 +16,8 @@ Si se repite el mismo comando, no se vuelve a llamar a ninguna API: se reutiliza
 ## Instalación y configuración
 
 ```bash
-git clone <url-del-repositorio>
-cd mundos-ia
+git clone https://github.com/Cortes518/EntregableMauro.git
+cd EntregableMauro
 npm install
 ```
 
