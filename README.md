@@ -126,36 +126,27 @@ El servicio de texto se puede cambiar solo editando el `.env`: NVIDIA (`https://
 
 ## Experimento: `npm publish --dry-run` con y sin `.gitignore`
 
-**Con `.gitignore`** (7 archivos, ningún dato privado):
+`npm publish --dry-run` simula la publicación: muestra qué archivos viajarían en el paquete, sin publicar nada. Las salidas completas y las capturas están en [evidencias/](evidencias/) (`salidaDePublish.md` y `salidaDePublish2.md`).
 
-```
-npm notice 236B .env.example
-npm notice 133B README.md
-npm notice 496B package.json
-npm notice 2.0kB src/imagen.js
-npm notice 3.7kB src/index.js
-npm notice 2.4kB src/mundo.js
-npm notice 2.8kB src/texto.js
-npm notice total files: 7
-```
+| | Con `.gitignore` | Con `.gitignore.off` (sin `.gitignore`) |
+|---|---|---|
+| Archivos en el paquete | 18 | 32 |
+| Tamaño del paquete | 217,9 kB | 471,1 kB |
+| `.env` (las claves) | **no aparece** | **aparece (295 B)** |
+| `data/`, `descripciones/`, `imagenes/` | no aparecen | aparecen |
 
-**Sin `.gitignore`** (renombrado a `.gitignore.off`, 12 archivos):
+Con `.gitignore`, npm solo empaqueta lo necesario: `.env.example`, los `.md`, `package.json`, `src/` y `evidencias/`. Sin él, además de los archivos generados en cada ejecución, el paquete incluye el `.env` con las API keys reales.
 
-```
-npm notice 236B .env                          <-- ¡las claves!
-npm notice 236B .env.example
-npm notice 50B .gitignore.off
-npm notice 133B README.md
-npm notice 288B data/mundo_ba39827a.json
-npm notice 297B data/mundo_cba86145.json
-npm notice 708B descripciones/mundo_cba86145.txt
-npm notice 496B package.json
-npm notice 2.0kB src/imagen.js
-...
-npm notice total files: 12
-```
+**Qué pasó:** cuando no existe un `.npmignore`, npm usa el `.gitignore` para decidir qué excluir. Así lo avisa en la primera salida: `gitignore-fallback ... using .gitignore for file exclusion`. Al renombrar el archivo a `.gitignore.off`, npm dejó de encontrarlo y empaquetó todo lo que había en la carpeta.
 
-**Qué pasó y por qué es peligroso:** cuando no existe un `.npmignore`, npm usa el `.gitignore` para decidir qué no publicar. Sin él, el paquete incluye el archivo `.env` con las API keys y todos los archivos generados (`data/`, `descripciones/` y, si existen, `imagenes/`). Un `npm publish` real dejaría las claves públicas en el registro de npm para cualquiera que descargue el paquete, y habría que revocarlas de inmediato. Después del experimento se restauró el nombre `.gitignore`.
+**Por qué es peligroso:**
+
+- Un `npm publish` real dejaría el `.env` en el registro público de npm. Cualquiera que ejecute `npm install mundos-ia` recibiría las claves. Los bots que rastrean registros y repositorios buscan claves con formatos conocidos (`gsk_...`, `nvapi-...`) y las usan en minutos.
+- Despublicar o borrar el archivo después no lo arregla: el paquete pudo haberse descargado ya, y las claves quedan expuestas. La única solución es **revocarlas** y crear otras.
+- Con git pasa lo mismo: sin `.gitignore`, un `git add -A` y un `git push` subirían el `.env` a GitHub, y quedaría en el historial aunque se borrara después.
+- Además se publicarían datos que no deben ir en el paquete: los mundos generados y las imágenes.
+
+Después del experimento se restauró el nombre `.gitignore` y se comprobó con `git check-ignore .env` que el `.env` vuelve a estar ignorado.
 
 ## Preguntas de reflexión
 
