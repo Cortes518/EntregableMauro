@@ -35,7 +35,7 @@ async function describirMundo(mundo) {
 
   // 1.2 si el servicio responde con error, se lanza con su estado para explicarlo en index.js
   if (!respuesta.ok) {
-    const error = new Error(`El modelo de texto respondió con el estado ${respuesta.status}.`);
+    const error = new Error(`El modelo de texto respondio con el estado ${respuesta.status}.`);
     error.status = respuesta.status;
     error.retryAfter = respuesta.headers.get('retry-after');
     throw error;

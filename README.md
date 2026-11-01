@@ -11,7 +11,7 @@ Si se repite el mismo comando, no se vuelve a llamar a ninguna API: se reutiliza
 ## Requisitos
 
 - Node.js 20.12 o superior (`node -v`), npm y Git.
-- Una clave del servicio de texto y una del servicio de imágenes (ver [Servicios](#servicios-elegidos)).
+- Una clave del servicio de texto (Groq). El servicio de imágenes (Pollinations) no necesita clave (ver [Servicios](#servicios-elegidos)).
 
 ## Instalación y configuración
 
@@ -21,7 +21,7 @@ cd mundos-ia
 npm install
 ```
 
-Copia `.env.example` a `.env` y reemplaza `pega_aqui_tu_clave` por tus claves reales:
+Copia `.env.example` a `.env` y reemplaza `pega_aqui_tu_clave` por tu clave real de Groq:
 
 ```bash
 cp .env.example .env
@@ -31,8 +31,7 @@ cp .env.example .env
 TEXTO_API_KEY=pega_aqui_tu_clave
 TEXTO_URL=https://api.groq.com/openai/v1/chat/completions
 TEXTO_MODELO=openai/gpt-oss-20b
-IMAGEN_API_KEY=pega_aqui_tu_clave
-IMAGEN_URL=https://ai.api.nvidia.com/v1/genai/black-forest-labs/flux.1-schnell
+IMAGEN_URL=https://image.pollinations.ai/prompt
 ```
 
 El archivo `.env` **nunca** se sube a Git (está en el `.gitignore`).
@@ -55,7 +54,7 @@ Salida:
 
 ```
 Paso 1: mundo guardado en data/mundo_cba86145.json
-Paso 2: descripción guardada en descripciones/mundo_cba86145.txt
+Paso 2: descripcion guardada en descripciones/mundo_cba86145.txt
 Paso 3: imagen guardada en imagenes/mundo_cba86145.jpg
 Listo. Revisa la carpeta imagenes/
 ```
@@ -64,8 +63,8 @@ Segunda ejecución del mismo comando:
 
 ```
 Paso 1: mundo guardado en data/mundo_cba86145.json
-Paso 2: la descripción ya existía, no se llamó al modelo de texto.
-Paso 3: la imagen ya existía, no se llamó al modelo de imágenes.
+Paso 2: la descripcion ya existia, no se llamo al modelo de texto.
+Paso 3: la imagen ya existia, no se llamo al modelo de imagenes.
 Listo. Revisa la carpeta imagenes/
 ```
 
@@ -81,12 +80,13 @@ Si algo falla se muestra un mensaje en español con un ejemplo de uso y el progr
 
 | Situación | Mensaje |
 |---|---|
-| Estado 401 o 403 | La API key no es válida. Revisa tu archivo .env. |
-| Estado 402 o 429 | Superaste el límite gratuito. Espera un momento e intenta de nuevo. (Si existe, se indica el `retry-after`.) |
-| Estado 404 o 410 | El modelo o la URL no existen. Revisa tu configuración. |
-| `fetch` lanza `TypeError` | No se pudo conectar. Revisa tu internet o la URL. |
-| `TimeoutError` | El servicio tardó demasiado en responder. Intenta de nuevo. |
-| No existe `.env` | No se encontró el archivo .env. Copia .env.example a .env y pon tus claves. |
+| Estado 401 o 403 | La API key no es valida, revisa tu archivo .env |
+| Estado 402 o 429 | Superaste el limite gratuito, espera un momento y vuelve a intentar (si existe, se indica el `retry-after`) |
+| Estado 404 o 410 | El modelo o la URL no existen, revisa tu configuracion |
+| Estado 500 o más (servicio caído) | El servicio no esta disponible en este momento, espera un poco y intenta de nuevo |
+| `fetch` lanza `TypeError` | No se pudo conectar, revisa tu internet o la URL |
+| `TimeoutError` | El servicio tardo demasiado en responder, prueba de nuevo. |
+| No existe `.env` | No se encontro el archivo .env , copia .env.example a .env y pon tus claves |
 
 Si un paso falla, los archivos de los pasos anteriores se conservan y la siguiente ejecución continúa desde donde quedó.
 
@@ -118,7 +118,9 @@ Herramientas usadas: CommonJS (`require` / `module.exports`), módulos nativos `
 | Uso | Servicio | Enlaces |
 |---|---|---|
 | Texto | **Groq**, modelo `openai/gpt-oss-20b` (formato compatible con OpenAI) | [Crear clave](https://console.groq.com/keys) · [Modelos](https://console.groq.com/docs/models) · [Límites](https://console.groq.com/docs/rate-limits) |
-| Imagen | **NVIDIA FLUX.1-schnell** (la imagen llega en base64 dentro de un JSON) | [Página del modelo](https://build.nvidia.com/black-forest-labs/flux_1-schnell) |
+| Imagen | **Pollinations** (sin clave; la imagen llega directamente como bytes, límite de 1 imagen cada 45 s por IP) | [enter.pollinations.ai](https://enter.pollinations.ai) |
+
+**Por qué Pollinations en la imagen:** se intentó primero NVIDIA FLUX.1-schnell, pero su endpoint de inferencia no respondió (la conexión se abría y no llegaba ninguna respuesta, ni siquiera en el de texto de NVIDIA, aunque la clave era válida). Por eso se cambió a Pollinations, una de las opciones de la guía del taller.
 
 El servicio de texto se puede cambiar solo editando el `.env`: NVIDIA (`https://integrate.api.nvidia.com/v1/chat/completions`) y Pollinations (`https://text.pollinations.ai/openai`, modelo `openai`) usan el mismo formato.
 
@@ -161,10 +163,10 @@ npm notice total files: 12
 El id debe identificar el contenido del mundo (situación, mundo y colores), no el momento en que se creó. `creadoEn` cambia en cada ejecución, así que si entrara en el hash el id sería distinto cada vez. El programa nunca encontraría el `.txt` ni el `.jpg` anteriores y volvería a gastar cuota en cada ejecución.
 
 **2. ¿Por qué se le pide al modelo de texto la descripción en inglés?**
-Los modelos de imágenes como FLUX se entrenaron sobre todo con descripciones en inglés, así que interpretan mejor sus palabras: estilos, iluminación y composición. Con una descripción en español suelen ignorar detalles o confundir colores y elementos de la escena.
+Los modelos de imágenes se entrenaron sobre todo con descripciones en inglés, así que interpretan mejor sus palabras: estilos, iluminación y composición. Con una descripción en español suelen ignorar detalles o confundir colores y elementos de la escena.
 
 **3. ¿Qué diferencia hay entre una respuesta JSON de texto y una respuesta con los bytes de una imagen? ¿Qué es base64?**
-Un JSON es texto legible que se convierte en objeto con `JSON.parse`. Una imagen son bytes binarios que no son texto. Base64 es una forma de escribir bytes usando solo 64 caracteres de texto seguros (A-Z, a-z, 0-9, `+`, `/`), y así una imagen puede viajar dentro de un JSON. Para recuperar los bytes se usa `Buffer.from(texto, 'base64')`.
+Un JSON es texto legible que se convierte en objeto con `JSON.parse`. Una imagen son bytes binarios que no son texto. Base64 es una forma de escribir bytes usando solo 64 caracteres de texto seguros (A-Z, a-z, 0-9, `+`, `/`), y así una imagen puede viajar dentro de un JSON. Para recuperar los bytes de un base64 se usa `Buffer.from(texto, 'base64')`. Con Pollinations la imagen llega directamente como bytes y se usa `Buffer.from(await respuesta.arrayBuffer())`.
 
 **4. ¿Qué pasaría si guardas la imagen con `'utf-8'`? ¿Por qué?**
 El archivo quedaría dañado y no se podría abrir. UTF-8 es una codificación de texto: al escribir con ella, los bytes que no forman caracteres válidos se reemplazan o se transforman, y la secuencia binaria del JPEG cambia. Los bytes de una imagen se deben escribir tal cual, pasando el `Buffer` a `writeFileSync` sin codificación.
@@ -173,4 +175,4 @@ El archivo quedaría dañado y no se podría abrir. UTF-8 es una codificación d
 Consumen cuota el paso 2 (modelo de texto) y el paso 3 (modelo de imágenes). El paso 1 es local. Antes de cada llamada, `fs.existsSync` revisa si ya existe `descripciones/mundo_<id>.txt` o `imagenes/mundo_<id>.jpg`. Si existe, se reutiliza el archivo y no se llama a la API. Como el id es siempre el mismo para los mismos datos, una segunda ejecución no gasta nada, y si un paso falla el siguiente intento continúa desde ahí.
 
 **6. Si usaste IA: ¿qué fue lo más difícil de pedirle y qué parte tuviste que corregir tú?**
-_Pendiente: respóndela con tu propia experiencia (ver PROMPT.md)._
+ Lo mas dificil para mi fue analizar linea por linea para identificar funciones que no habia visto en clases con Mauro y entender como funcionaba paso a paso, lo que tuve que corregir fue la implementacion de las API'S Keys ya que de por si Claude no las puede generar sola

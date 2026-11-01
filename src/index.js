@@ -17,23 +17,26 @@ function rutaCorta(ruta) {
 // Traduce un error técnico a un mensaje claro en español (nunca incluye las claves)
 function explicarError(error) {
   if (error.code === 'ENOENT' && error.path && error.path.endsWith('.env')) {
-    return 'No se encontró el archivo .env. Copia .env.example a .env y pon tus claves.';
+    return 'No se encontro el archivo .env , copia .env.example a .env y pon tus claves';
   }
   if (error.status === 401 || error.status === 403) {
-    return 'La API key no es válida. Revisa tu archivo .env.';
+    return 'La API key no es valida, revisa tu archivo .env';
   }
   if (error.status === 402 || error.status === 429) {
     const espera = error.retryAfter ? ` El servicio pide esperar ${error.retryAfter} segundos.` : '';
-    return `Superaste el límite gratuito. Espera un momento e intenta de nuevo.${espera}`;
+    return `Superaste el limite gratuito, espera un momento y vuelve a intentar${espera}`;
   }
   if (error.status === 404 || error.status === 410) {
-    return 'El modelo o la URL no existen. Revisa tu configuración.';
+    return 'El modelo o la URL no existen, revisa tu configuracion';
+  }
+  if (error.status >= 500) {
+    return 'El servicio no esta disponible en este momento, espera un poco y intenta de nuevo';
   }
   if (error.name === 'TimeoutError') {
-    return 'El servicio tardó demasiado en responder. Intenta de nuevo.';
+    return 'El servicio tardo demasiado en responder, prueba de nuevo.';
   }
   if (error.name === 'TypeError') {
-    return 'No se pudo conectar. Revisa tu internet o la URL.';
+    return 'No se pudo conectar, revisa tu internet o la URL';
   }
   return error.message;
 }
@@ -56,12 +59,12 @@ async function main() {
     const rutaTxt = path.join(CARPETA_DESCRIPCIONES, `mundo_${mundo.id}.txt`);
     if (fs.existsSync(rutaTxt)) {
       // 2.1 ahorro de cuota: si la descripción ya existe no se llama a la API
-      console.log('Paso 2: la descripción ya existía, no se llamó al modelo de texto.');
+      console.log('Paso 2: la descripcion ya existia, no se llamo al modelo de texto.');
     } else {
       const descripcion = await describirMundo(mundo);
       fs.mkdirSync(CARPETA_DESCRIPCIONES, { recursive: true });
       fs.writeFileSync(rutaTxt, descripcion, 'utf-8');
-      console.log(`Paso 2: descripción guardada en ${rutaCorta(rutaTxt)}`);
+      console.log(`Paso 2: descripcion guardada en ${rutaCorta(rutaTxt)}`);
     }
 
     // Paso 3: la descripción que se envía se lee desde el .txt guardado
@@ -69,7 +72,7 @@ async function main() {
     const rutaJpg = path.join(CARPETA_IMAGENES, `mundo_${mundo.id}.jpg`);
     if (fs.existsSync(rutaJpg)) {
       // 3.1 ahorro de cuota: si la imagen ya existe no se llama a la API
-      console.log('Paso 3: la imagen ya existía, no se llamó al modelo de imágenes.');
+      console.log('Paso 3: la imagen ya existia, no se llamo al modelo de imagenes.');
     } else {
       const bytes = await generarImagen(fs.readFileSync(rutaTxt, 'utf-8'));
       fs.mkdirSync(CARPETA_IMAGENES, { recursive: true });
